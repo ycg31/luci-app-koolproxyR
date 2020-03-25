@@ -252,8 +252,8 @@ kpr_update_rules() {
 	if [[ "1" == "1" ]]; then
 		echo_date " ---------------------------------------------------------------------------------------" >>$LOGFILE
 		for i in {1..5}; do
-			wget -4 -a /tmp/upload/kpr_log.txt -O /tmp/fanboy.txt $url_fanboy
-			# wget --no-check-certificate --timeout=8 -qO - $url_fanboy > /tmp/fanboy.txt
+			#wget -4 -a /tmp/upload/kpr_log.txt -O /tmp/fanboy.txt $url_fanboy
+			wget --no-check-certificate --timeout=8 -qO - $url_fanboy > /tmp/fanboy.txt
 			fanboy_rules_local=`cat $KSROOT/koolproxy/data/rules/fanboy.txt  | sed -n '3p'|awk '{print $3,$4}'`
 			fanboy_rules_remote=`cat /tmp/fanboy.txt  | sed -n '3p'|awk '{print $3,$4}'`
 			fanboy_nu_local=`grep -E -v "^!" /tmp/fanboy.txt | wc -l`
