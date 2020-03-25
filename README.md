@@ -11,13 +11,12 @@
 * 如果没有 **wget, ca-bundle, ca-certificates, libustream-openssl** ，会导致规则文件更新失败，host规则条数变为0,如果你的固件的busybox带有支持https的wget，那么这几个包可以不安装
 
 
-
 ## 使用方法
 ```Brach
     #源码根目录，进入package文件夹
     cd package
     #下载源码
-    git clone https://github.com/jefferymvp/luci-app-koolproxyR
+    git clone https://github.com/ycg31/luci-app-koolproxyR
     #回到源码根目录
     cd ..
     make menuconfig
