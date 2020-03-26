@@ -130,7 +130,8 @@ kpr_update_rules() {
 		echo_date " ---------------------------------------------------------------------------------------"  >>$LOGFILE
 		# wget --no-check-certificate --timeout=8 -qO - $url_easylist > /tmp/easylistchina.txt
 		for i in {1..5}; do
-			wget -4 -a /tmp/upload/kpr_log.txt -O /tmp/easylistchina.txt $url_easylist
+			wget --no-check-certificate --timeout=8 -qO - $url_easylist > /tmp/easylistchina.txt
+			#wget -4 -a /tmp/upload/kpr_log.txt -O /tmp/easylistchina.txt $url_easylist
 			easylistchina_rule_nu_local=`grep -E -v "^!" /tmp/easylistchina.txt | wc -l`
 			if [[ "$easylistchina_rule_nu_local" -gt 5000 ]]; then
 				break
@@ -140,7 +141,8 @@ kpr_update_rules() {
 			fi
 		done
 		for i in {1..5}; do
-			wget -4 -a /tmp/upload/kpr_log.txt -O /tmp/cjx-annoyance.txt $url_cjx
+			wget --no-check-certificate --timeout=8 -qO - $url_cjx > /tmp/cjx-annoyance.txt
+			#wget -4 -a /tmp/upload/kpr_log.txt -O /tmp/cjx-annoyance.txt $url_cjx
 			cjx_rule_nu_local=`grep -E -v "^!" /tmp/cjx-annoyance.txt | wc -l`
 			if [[ "$cjx_rule_nu_local" -gt 500 ]]; then
 				break
@@ -192,8 +194,10 @@ kpr_update_rules() {
 	if [[ "1" == "1" ]]; then
 		echo_date " ---------------------------------------------------------------------------------------" >>$LOGFILE
 		for i in {1..5}; do
-			wget -4 -a /tmp/upload/kpr_log.txt -O /tmp/yhosts.txt $url_yhosts
-			wget -4 -a /tmp/upload/kpr_log.txt -O /tmp/tvbox.txt $url_yhosts1
+			wget --no-check-certificate --timeout=8 -qO - $url_yhosts > /tmp/yhosts.txt
+			wget --no-check-certificate --timeout=8 -qO - $url_yhosts1 > /tmp/tvbox.txt
+			#wget -4 -a /tmp/upload/kpr_log.txt -O /tmp/yhosts.txt $url_yhosts
+			#wget -4 -a /tmp/upload/kpr_log.txt -O /tmp/tvbox.txt $url_yhosts1
 			cat /tmp/tvbox.txt >> /tmp/yhosts.txt
 			replenish_rules_local=`cat $KSROOT/koolproxy/data/rules/yhosts.txt  | sed -n '2p' | cut -d "=" -f2`
 			replenish_rules_remote=`cat /tmp/yhosts.txt | sed -n '2p' | cut -d "=" -f2`
@@ -222,14 +226,16 @@ kpr_update_rules() {
 		echo_date " ---------------------------------------------------------------------------------------" >>$LOGFILE
 		for i in {1..5}; do
 			kpr_video_md5=`md5sum $KSROOT/koolproxy/data/rules/kp.dat | awk '{print $1}'`
-			wget -4 -a /tmp/upload/kpr_log.txt -O /tmp/kp.dat.md5 $url_kp_md5
+			wget --no-check-certificate --timeout=8 -qO - $url_kp_md5 > /tmp/kp.dat.md5
+			#wget -4 -a /tmp/upload/kpr_log.txt -O /tmp/kp.dat.md5 $url_kp_md5
 			kpr_video_new_md5=`cat /tmp/kp.dat.md5 | sed -n '1p'`
 			echo_date 远程视频规则md5：$kpr_video_new_md5 >>$LOGFILE
 			echo_date 您本地视频规则md5：$kpr_video_md5 >>$LOGFILE
 
 			if [[ "$kpr_video_md5" != "$kpr_video_new_md5" ]]; then
 				echo_date 检测到新版视频规则.开始更新.......... >>$LOGFILE
-				wget -4 -a /tmp/upload/kpr_log.txt -O /tmp/kp.dat $url_kp
+				wget --no-check-certificate --timeout=8 -qO - $url_kp > /tmp/kp.dat
+				#wget -4 -a /tmp/upload/kpr_log.txt -O /tmp/kp.dat $url_kp
 				kpr_video_download_md5=`md5sum /tmp/kp.dat | awk '{print $1}'`
 				echo_date 您下载的视频规则md5：$kpr_video_download_md5 >>$LOGFILE
 				if [[ "$kpr_video_download_md5" == "$kpr_video_new_md5" ]]; then
