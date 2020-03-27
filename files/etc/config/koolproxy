@@ -14,4 +14,3 @@ config rss_rule
 	option name 'kpr_our_rule.txt'
 	option url 'https://dev.tencent.com/u/shaoxia1991/p/koolproxyR_rule_list/git/raw/master/kpr_our_rule.txt'
 	option file 'kpr_our_rule.txt'
-
