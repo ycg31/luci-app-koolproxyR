@@ -15,8 +15,8 @@ alias echo_date='echo $(date "+%F %T"):'
 
 
 url_cjx="https://shaoxia1991.coding.net/p/cjxlist/d/cjxlist/git/raw/master/cjx-annoyance.txt"
-url_kp="https://houzi-.coding.net/p/my_dream/d/my_dream/git/raw/master/kp.dat"
-url_kp_md5="https://houzi-.coding.net/p/my_dream/d/my_dream/git/raw/master/kp.dat.md5"
+url_kp="https://cdn.jsdelivr.net/gh/houzi-/CDN/kp.dat"
+#url_kp_md5="https://houzi-.coding.net/p/my_dream/d/my_dream/git/raw/master/kp.dat.md5"
 url_easylist="https://easylist-downloads.adblockplus.org/easylistchina.txt"
 url_yhosts="https://shaoxia1991.coding.net/p/yhosts/d/yhosts/git/raw/master/hosts"
 url_yhosts1="https://shaoxia1991.coding.net/p/yhosts/d/yhosts/git/raw/master/data/tvbox.txt"
@@ -76,21 +76,21 @@ __compare_file() {
 
 		echo $(date "+%F %T"): 本地版本MD5：$localMD5 >>$LOGFILE
 		echo $(date "+%F %T"): 本地版本条数：$localNum >>$LOGFILE
-		
+
 		echo $(date "+%F %T"): 在线版本MD5：$remoteMD5 >>$LOGFILE
 		echo $(date "+%F %T"): 在线版本条数：$remoteNum >>$LOGFILE
-		
+
 
 		if [ "$localMD5" != "$remoteMD5" ];then
 			echo $(date "+%F %T"): 检测到更新，开始更新规则！ >>$LOGFILE
 			mv -f "$remotePath" "$localPath"
 			echo $(date "+%F %T"): 更新成功！ >>$LOGFILE
-			
+
 			return 0
 		fi
 	else
 		echo "$(date "+%F %T"): 获取在线版本时出现错误! " >>$LOGFILE
-		
+
 	fi
 	return 1
 }
@@ -115,7 +115,7 @@ __update_rule() {
 			RESTART_KOOLPROXY=true
 		fi
 		cat $KP_DIR/data/rules/$file >>$KP_DIR/data/rules/user.txt
-		
+
 	fi
 }
 
@@ -123,14 +123,14 @@ kpr_update_rules() {
         echo $(date "+%F %T"): ------------------- 内置规则更新 ------------------- >>$LOGFILE
 	echo_date ======================================================================================================= >>$LOGFILE
 	echo_date 开始更新koolproxyR的规则，请等待... >>$LOGFILE
-	# 赋予文件夹权限 
+	# 赋予文件夹权限
 	chmod -R 777 $KSROOT/koolproxy/data/rules
 	# update 中国简易列表 2.0
 	if [[ "1" == "1" ]]; then
 		echo_date " ---------------------------------------------------------------------------------------"  >>$LOGFILE
-		# wget --no-check-certificate --timeout=8 -qO - $url_easylist > /tmp/easylistchina.txt
+		# curl -4Lk --connect-timeout 8 $url_easylist > /tmp/easylistchina.txt
 		for i in {1..5}; do
-			wget --no-check-certificate --timeout=8 -qO - $url_easylist > /tmp/easylistchina.txt
+			curl -4Lk --connect-timeout 8 --socks5 127.0.0.1:1281 $url_easylist > /tmp/easylistchina.txt
 			#wget -4 -a /tmp/upload/kpr_log.txt -O /tmp/easylistchina.txt $url_easylist
 			easylistchina_rule_nu_local=`grep -E -v "^!" /tmp/easylistchina.txt | wc -l`
 			if [[ "$easylistchina_rule_nu_local" -gt 5000 ]]; then
@@ -141,7 +141,7 @@ kpr_update_rules() {
 			fi
 		done
 		for i in {1..5}; do
-			wget --no-check-certificate --timeout=8 -qO - $url_cjx > /tmp/cjx-annoyance.txt
+			curl -4Lk --connect-timeout 8 $url_cjx > /tmp/cjx-annoyance.txt
 			#wget -4 -a /tmp/upload/kpr_log.txt -O /tmp/cjx-annoyance.txt $url_cjx
 			cjx_rule_nu_local=`grep -E -v "^!" /tmp/cjx-annoyance.txt | wc -l`
 			if [[ "$cjx_rule_nu_local" -gt 500 ]]; then
@@ -161,7 +161,7 @@ kpr_update_rules() {
 		#		koolproxyR_basic_easylist_failed=1
 		#	fi
 		#done
-		
+
 		# expr 进行运算，将统计到的规则条数相加 如果条数大于 10000 条就说明下载完毕
 		#easylistchina_rule_local=`expr $kpr_our_rule_nu_local + $cjx_rule_nu_local + $easylistchina_rule_nu_local`
 		easylistchina_rule_local=`expr $cjx_rule_nu_local + $easylistchina_rule_nu_local`
@@ -189,13 +189,13 @@ kpr_update_rules() {
 	else
 		echo_date 未打开 KPR主规则 的更新开关！>>$LOGFILE
 	fi
-	
+
 		# update yhosts规则
 	if [[ "1" == "1" ]]; then
 		echo_date " ---------------------------------------------------------------------------------------" >>$LOGFILE
 		for i in {1..5}; do
-			wget --no-check-certificate --timeout=8 -qO - $url_yhosts > /tmp/yhosts.txt
-			wget --no-check-certificate --timeout=8 -qO - $url_yhosts1 > /tmp/tvbox.txt
+			curl -4Lk --connect-timeout 8 $url_yhosts > /tmp/yhosts.txt
+			curl -4Lk --connect-timeout 8 $url_yhosts1 > /tmp/tvbox.txt
 			#wget -4 -a /tmp/upload/kpr_log.txt -O /tmp/yhosts.txt $url_yhosts
 			#wget -4 -a /tmp/upload/kpr_log.txt -O /tmp/tvbox.txt $url_yhosts1
 			cat /tmp/tvbox.txt >> /tmp/yhosts.txt
@@ -225,29 +225,14 @@ kpr_update_rules() {
 	if [[ "1" == "1" ]] || [[ -n "$1" ]]; then
 		echo_date " ---------------------------------------------------------------------------------------" >>$LOGFILE
 		for i in {1..5}; do
-			kpr_video_md5=`md5sum $KSROOT/koolproxy/data/rules/kp.dat | awk '{print $1}'`
-			wget --no-check-certificate --timeout=8 -qO - $url_kp_md5 > /tmp/kp.dat.md5
-			#wget -4 -a /tmp/upload/kpr_log.txt -O /tmp/kp.dat.md5 $url_kp_md5
-			kpr_video_new_md5=`cat /tmp/kp.dat.md5 | sed -n '1p'`
-			echo_date 远程视频规则md5：$kpr_video_new_md5 >>$LOGFILE
-			echo_date 您本地视频规则md5：$kpr_video_md5 >>$LOGFILE
-
-			if [[ "$kpr_video_md5" != "$kpr_video_new_md5" ]]; then
-				echo_date 检测到新版视频规则.开始更新.......... >>$LOGFILE
-				wget --no-check-certificate --timeout=8 -qO - $url_kp > /tmp/kp.dat
-				#wget -4 -a /tmp/upload/kpr_log.txt -O /tmp/kp.dat $url_kp
-				kpr_video_download_md5=`md5sum /tmp/kp.dat | awk '{print $1}'`
-				echo_date 您下载的视频规则md5：$kpr_video_download_md5 >>$LOGFILE
-				if [[ "$kpr_video_download_md5" == "$kpr_video_new_md5" ]]; then
-					echo_date 将临时文件覆盖到原始 视频规则 文件 >>$LOGFILE
-					mv /tmp/kp.dat $KSROOT/koolproxy/data/rules/kp.dat
-					mv /tmp/kp.dat.md5 $KSROOT/koolproxy/data/rules/kp.dat.md5
-					break
-				else
-					echo_date 视频规则md5校验不通过... >>$LOGFILE
-				fi
+			echo_date 开始更新.......... >>$LOGFILE
+			curl -4Lk --connect-timeout 8 $url_kp > /tmp/kp.dat
+			if [ `wc -c /tmp/kp.dat|awk '{print $1}'` -gt 40000 ]; then
+				echo_date 将临时文件覆盖到原始 视频规则 文件 >>$LOGFILE
+				mv /tmp/kp.dat $KSROOT/koolproxy/data/rules/kp.dat
+				break
 			else
-				echo_date 检测到 视频规则 本地版本号和在线版本号相同，那还更新个毛啊! >>$LOGFILE
+				echo_date 临时视频规则尺寸过小,重新下载. >>$LOGFILE
 			fi
 		done
 	else
@@ -259,7 +244,7 @@ kpr_update_rules() {
 		echo_date " ---------------------------------------------------------------------------------------" >>$LOGFILE
 		for i in {1..5}; do
 			#wget -4 -a /tmp/upload/kpr_log.txt -O /tmp/fanboy.txt $url_fanboy
-			wget --no-check-certificate --timeout=8 -qO - $url_fanboy > /tmp/fanboy.txt
+			curl -4Lk --connect-timeout 8 $url_fanboy > /tmp/fanboy.txt
 			fanboy_rules_local=`cat $KSROOT/koolproxy/data/rules/fanboy.txt  | sed -n '3p'|awk '{print $3,$4}'`
 			fanboy_rules_remote=`cat /tmp/fanboy.txt  | sed -n '3p'|awk '{print $3,$4}'`
 			fanboy_nu_local=`grep -E -v "^!" /tmp/fanboy.txt | wc -l`
@@ -365,9 +350,9 @@ kpr_update_rules() {
 			else
 				koolproxyR_del_rule=0
 			fi
-		done	
+		done
 
-        cp $KSROOT/koolproxy/data/rules/fanboy.txt $KSROOT/koolproxy/data/rules/fanboy.txt
+		echo_date 优化 fanboy规则 完成。。。。。 >>$LOGFILE
 	else
 		echo_date 跳过优化 fanboy规则。。。。。 >>$LOGFILE
 	fi
@@ -452,9 +437,9 @@ kpr_update_rules() {
 			else
 				koolproxyR_del_rule=0
 			fi
-		done	
+		done
 		#cat $KSROOT/koolproxy/data/rules/kpr_our_rule.txt >> $KSROOT/koolproxy/data/rules/easylistchina.txt
-
+		echo_date 优化 KPR主规则 完成。。。。。 >>$LOGFILE
 	else
 		echo_date 跳过优化 KPR主规则。。。。。 >>$LOGFILE
 	fi
@@ -532,8 +517,8 @@ kpr_update_rules() {
 			else
 				koolproxyR_del_rule=0
 			fi
-		done	
-
+		done
+		echo_date 优化 补充规则yhosts 完成。。。。。 >>$LOGFILE
 
 	else
 		echo_date 跳过优化 补充规则yhosts。。。。。 >>$LOGFILE
@@ -546,10 +531,8 @@ kpr_update_rules() {
 
 	echo_date 所有规则更新并优化完毕！ >>$LOGFILE
 	echo_date ======================================================================================================= >>$LOGFILE
-        wget 'https://houzi-.coding.net/p/my_dream/d/my_dream/git/raw/master/daily.txt' -q -O $KP_DIR/data/rules/daily.txt
-		wget 'https://houzi-.coding.net/p/my_dream/d/my_dream/git/raw/master/koolproxy.txt' -q -O $KP_DIR/data/rules/koolproxy.txt
-		wget 'https://gitee.com/privacy-protection-tools/anti-ad/raw/master/anti-ad-for-dnsmasq.conf' -q -O $KP_DIR/data/rules/AdGuardHome.txt
-	    wget 'https://raw.githubusercontent.com/user1121114685/koolproxyR/master/koolproxyR/koolproxyR/data/koolproxyR_ipset.conf' -q -O $KP_DIR/koolproxy_ipset.conf
+		curl -4Lk --connect-timeout 8 'https://anti-ad.net/anti-ad-for-dnsmasq.conf' > $KP_DIR/data/rules/AdGuardHome.txt
+	    curl -4Lk --connect-timeout 8 --socks5 127.0.0.1:1281 'https://raw.githubusercontent.com/user1121114685/koolproxyR/master/koolproxyR/koolproxyR/data/koolproxyR_ipset.conf' > $KP_DIR/koolproxy_ipset.conf
 		easylist_rules_local=`cat /usr/share/koolproxy/data/rules/easylistchina.txt  | sed -n '3p'|awk '{print $3,$4}'`
         fanboy_rules_local=`cat /usr/share/koolproxy/data/rules/fanboy.txt  | sed -n '3p'|awk '{print $3,$4}'`
         replenish_rules_local=`cat /usr/share/koolproxy/data/rules/yhosts.txt | sed -n '2p' | cut -d "=" -f2`
@@ -573,17 +556,14 @@ update_rss_rules() {
 
 
 
-	
+
 update_rules() {
 	echo $(date "+%F %T"): ------------------- 内置规则更新 ------------------- >>$LOGFILE
-		wget 'https://houzi-.coding.net/p/my_dream/d/my_dream/git/raw/master/kp.dat' -q -O $KP_DIR/data/rules/kp.dat
-		wget 'https://houzi-.coding.net/p/my_dream/d/my_dream/git/raw/master/daily.txt' -q -O $KP_DIR/data/rules/daily.txt
-		wget 'https://houzi-.coding.net/p/my_dream/d/my_dream/git/raw/master/koolproxy.txt' -q -O $KP_DIR/data/rules/koolproxy.txt
-		wget 'https://raw.githubusercontent.com/user1121114685/koolproxyR/master/koolproxyR/koolproxyR/data/rules/yhosts.txt' -q -O $KP_DIR/data/rules/yhosts.txt
-		wget 'https://raw.githubusercontent.com/user1121114685/koolproxyR/master/koolproxyR/koolproxyR/data/rules/fanboy-annoyance.txt' -q -O $KP_DIR/data/rules/fanboy.txt
-		wget 'https://raw.githubusercontent.com/user1121114685/koolproxyR/master/koolproxyR/koolproxyR/data/rules/easylistchina.txt' -q -O $KP_DIR/data/rules/easylistchina.txt
-		wget 'https://gitee.com/privacy-protection-tools/anti-ad/raw/master/anti-ad-for-dnsmasq.conf' -q -O $KP_DIR/data/rules/AdGuardHome.txt
-	    wget 'https://raw.githubusercontent.com/user1121114685/koolproxyR/master/koolproxyR/koolproxyR/data/koolproxyR_ipset.conf' -q -O $KP_DIR/koolproxy_ipset.conf
+		curl -4Lk --connect-timeout 8 --socks5 127.0.0.1:1281 'https://raw.githubusercontent.com/user1121114685/koolproxyR/master/koolproxyR/koolproxyR/data/rules/yhosts.txt' > $KP_DIR/data/rules/yhosts.txt
+		curl -4Lk --connect-timeout 8 --socks5 127.0.0.1:1281 'https://raw.githubusercontent.com/user1121114685/koolproxyR/master/koolproxyR/koolproxyR/data/rules/fanboy-annoyance.txt' > $KP_DIR/data/rules/fanboy.txt
+		curl -4Lk --connect-timeout 8 --socks5 127.0.0.1:1281 'https://raw.githubusercontent.com/user1121114685/koolproxyR/master/koolproxyR/koolproxyR/data/rules/easylistchina.txt' > $KP_DIR/data/rules/easylistchina.txt
+		curl -4Lk --connect-timeout 8 'https://anti-ad.net/anti-ad-for-dnsmasq.conf' > $KP_DIR/data/rules/AdGuardHome.txt
+	    curl -4Lk --connect-timeout 8 --socks5 127.0.0.1:1281 'https://raw.githubusercontent.com/user1121114685/koolproxyR/master/koolproxyR/koolproxyR/data/koolproxyR_ipset.conf' > $KP_DIR/koolproxy_ipset.conf
         easylist_rules_local=`cat /usr/share/koolproxy/data/rules/easylistchina.txt  | sed -n '3p'|awk '{print $3,$4}'`
         fanboy_rules_local=`cat /usr/share/koolproxy/data/rules/fanboy.txt  | sed -n '3p'|awk '{print $3,$4}'`
 		AdGuardHome_rules_local=`cat /usr/share/koolproxy/data/rules/easylistchina.txt  | sed -n '3p'|awk '{print $3,$4}'`
@@ -632,3 +612,4 @@ if [ $RESTART_KOOLPROXY ]; then
 fi
 
 init_env
+
