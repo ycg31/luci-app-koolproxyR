@@ -74,6 +74,7 @@ __compare_file() {
 		remoteMD5=`md5sum "$remotePath" | awk '{print $1}'`
 		remoteNum=`cat "$remotePath" | grep -v '^!' | wc -l`
 
+		echo $(date "+%F %T"): 下载在线规则：$remoteUrl >>$LOGFILE
 		echo $(date "+%F %T"): 本地版本MD5：$localMD5 >>$LOGFILE
 		echo $(date "+%F %T"): 本地版本条数：$localNum >>$LOGFILE
 
@@ -114,13 +115,14 @@ __update_rule() {
 			uci commit koolproxy
 			RESTART_KOOLPROXY=true
 		fi
-		cat $KP_DIR/data/rules/$file >>$KP_DIR/data/rules/user.txt
-
+		if [ "$file" != "kp.dat" ];then
+			cat $KP_DIR/data/rules/$file >>$KP_DIR/data/rules/user.txt
+		fi
 	fi
 }
 
 kpr_update_rules() {
-        echo $(date "+%F %T"): ------------------- 内置规则更新 ------------------- >>$LOGFILE
+	echo $(date "+%F %T"): ------------------- 内置规则更新 ------------------- >>$LOGFILE
 	echo_date ======================================================================================================= >>$LOGFILE
 	echo_date 开始更新koolproxyR的规则，请等待... >>$LOGFILE
 	# 赋予文件夹权限

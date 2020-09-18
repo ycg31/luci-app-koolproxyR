@@ -187,7 +187,9 @@ __load_exrule() {
 				[ -f $TMP_DIR/$file ] && rm -f $TMP_DIR/$file
 			fi
 		fi
-		cat $KP_DIR/data/rules/$file >>$KP_DIR/data/rules/user.txt
+		if [ "$file" != "kp.dat" ];then
+			cat $KP_DIR/data/rules/$file >>$KP_DIR/data/rules/user.txt
+		fi
 	fi
 }
 
