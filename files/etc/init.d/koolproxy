@@ -109,11 +109,10 @@ add_white_black_ip() {
 	for ip in $ip_lan
 	do
 		ipset -A white_kp_list $ip >/dev/null 2>&1
-
 	done
-	sed -e "s/^/add white_kp_list &/g" /etc/adblocklist/adbypassip | awk '{print $0} END{print "COMMIT"}' | ipset -R 2>/dev/null
+	sed -e "s/^/ipset -A white_kp_list &/g" /etc/adblocklist/adbypassip |sh 2>/dev/null
 	ipset -A black_koolproxy 110.110.110.110 >/dev/null 2>&1
-	sed -e "s/^/add black_koolproxy &/g" /etc/adblocklist/adblockip | awk '{print $0} END{print "COMMIT"}' | ipset -R 2>/dev/null
+	sed -e "s/^/ipset -A black_koolproxy &/g" /etc/adblocklist/adblockip |sh 2>/dev/null
 }
 
 load_config() {
@@ -188,7 +187,9 @@ __load_exrule() {
 				[ -f $TMP_DIR/$file ] && rm -f $TMP_DIR/$file
 			fi
 		fi
-		cat $KP_DIR/data/rules/$file >>$KP_DIR/data/rules/user.txt
+		if [ "$file" != "kp.dat" ];then
+			cat $KP_DIR/data/rules/$file >>$KP_DIR/data/rules/user.txt
+		fi
 	fi
 }
 
